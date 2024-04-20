@@ -1,5 +1,5 @@
 const User = require("../models/User");
-
+const ErrorResponse = require("../utils/errorResponse");
 // Get token from model, create cookie and send response
 const sendTokenResponse = (user, statusCode, res) => {
   // Create token
@@ -21,12 +21,16 @@ const sendTokenResponse = (user, statusCode, res) => {
 };
 
 // @desc    Register user
-// @route   POST /api/v1/auth/register
-// @access  Public
 exports.register = async (req, res, next) => {
   try {
-    console.log(req);
     const { name, email, password, role } = req.body;
+    const isEmailExist = await User.find({ email: email });
+
+    console.log(isEmailExist);
+
+    if (isEmailExist.length > 0) {
+      return next(new ErrorResponse("Duplicate Email", 400));
+    }
 
     // Create user
     const user = await User.create({
@@ -46,8 +50,6 @@ exports.register = async (req, res, next) => {
 };
 
 // @desc    Login user
-// @route   POST /api/v1/auth/login
-// @access  Public
 exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -82,8 +84,6 @@ exports.login = async (req, res, next) => {
 };
 
 // @desc    Get current Logged in user
-// @route   POST /api/v1/auth/me
-// @access  Private
 exports.getMe = async (req, res, next) => {
   const user = await User.findById(req.user.id);
 
@@ -93,9 +93,6 @@ exports.getMe = async (req, res, next) => {
   });
 };
 
-//@desc Log user out / clear cookie
-//@route GET /api/v1/auth/logout
-//@access Private
 exports.logout = async (req, res, next) => {
   res.cookie("token", "none", {
     expires: new Date(Date.now() + 10 * 1000),

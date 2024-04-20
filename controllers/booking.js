@@ -5,29 +5,45 @@ const ErrorResponse = require("../utils/errorResponse");
 const moment = require("moment"); // Use Moment.js for date handling
 
 // Get all bookings for a user
-exports.getUserBookings = async (req, res, next) => {
+exports.listAllBookings = async (req, res, next) => {
   try {
-    const bookings = await Booking.find({ user: req.user.id }).populate({
-      path: "campground",
+    const bookings = await Booking.find().populate({
+      path: "campgroundId",
       select: "name address telephone",
     });
 
     res.status(200).json({ success: true, count: bookings.length, data: bookings });
   } catch (err) {
-    console.error("Error in getUserBookings:", err.message);
+    console.error("Error in getBookingsByUserId:", err.message);
+    next(new ErrorResponse("Error retrieving bookings", 500));
+  }
+};
+
+// Get all bookings for a user
+exports.getBookingsByUserId = async (req, res, next) => {
+  try {
+    const userId = req.params.userId;
+    const bookings = await Booking.find({ userId }).populate({
+      path: "campgroundId",
+      select: "name address telephone",
+    });
+
+    res.status(200).json({ success: true, count: bookings.length, data: bookings });
+  } catch (err) {
+    console.error("Error in getBookingsByUserId:", err.message);
     next(new ErrorResponse("Error retrieving bookings", 500));
   }
 };
 
 // Add a booking
 exports.addBooking = async (req, res, next) => {
-  const { campgroundId, startDate, endDate, numberOfPeople } = req.body;
-
-  const userId = req.user.id;
+  const { campgroundId, userId, startDate, endDate, numberOfPeople } = req.body;
 
   // Validate input
-  if (!campgroundId || !startDate || !endDate || !numberOfPeople) {
-    return next(new ErrorResponse("Please provide campgroundId, startDate, endDate, and number of people", 400));
+  if ((!userId, !campgroundId || !startDate || !endDate || !numberOfPeople)) {
+    return next(
+      new ErrorResponse("Please provide userId, campgroundId, startDate, endDate, and number of people", 400)
+    );
   }
 
   // Check the date range is valid
@@ -74,7 +90,7 @@ exports.addBooking = async (req, res, next) => {
 
     // Create new booking
     const booking = await Booking.create({
-      userId: req.user.id,
+      userId,
       campgroundId,
       startDate,
       endDate,
@@ -90,11 +106,11 @@ exports.addBooking = async (req, res, next) => {
 
 // Update a booking
 exports.updateBooking = async (req, res, next) => {
-  const { bookingId } = req.params; // or get it from req.body if it's in the payload
-  const { campgroundId, startDate, endDate, numberOfPeople } = req.body;
+  const bookingId = req.params.bookingId; // or get it from req.body if it's in the payload
+  const { startDate, endDate, numberOfPeople } = req.body;
 
   // Validate input
-  if (!campgroundId || !startDate || !endDate) {
+  if (!startDate || !endDate || !numberOfPeople) {
     return next(new ErrorResponse("Please provide campgroundId, startDate, and endDate", 400));
   }
 
@@ -123,15 +139,21 @@ exports.updateBooking = async (req, res, next) => {
       return next(new ErrorResponse("Booking not found", 404));
     }
 
-    // Ensure user is booking owner or an admin
-    if (booking.user.toString() !== req.user.id && req.user.role !== "admin") {
-      return next(new ErrorResponse("Not authorized to update this booking", 401));
+    // Check if the user already has a booking within the same date range
+    const existingBooking = await Booking.findOne({
+      userId: req.user.id,
+      startDate: { $lte: endDate },
+      endDate: { $gte: startDate },
+    });
+
+    if (existingBooking) {
+      return next(new ErrorResponse("You already have a booking within this date range", 400));
     }
 
     // Update the booking
     booking = await Booking.findByIdAndUpdate(
       bookingId,
-      { campground_id: campgroundId, startDate, endDate, numberOfPeople },
+      { startDate, endDate, numberOfPeople },
       { new: true, runValidators: true }
     );
 
@@ -145,20 +167,17 @@ exports.updateBooking = async (req, res, next) => {
 // Delete a booking
 exports.deleteBooking = async (req, res, next) => {
   try {
-    const booking = await Booking.findById(req.params.id);
+    const bookingId = req.params.bookingId;
+    const booking = await Booking.findById(bookingId);
 
     if (!booking) {
       return next(new ErrorResponse("No booking found", 404));
     }
 
-    if (booking.user.toString() !== req.user.id && req.user.role !== "admin") {
-      return next(new ErrorResponse(`Not authorized to delete this booking`, 401));
-    }
-
-    await booking.remove();
+    await Campground.findByIdAndDelete(bookingId);
     res.status(200).json({ success: true, data: {} });
   } catch (err) {
-    console.error("Error in deleteBooking:", err.message);
-    next(new ErrorResponse("Error deleting booking", 500));
+    console.error("Detailed Error in deleteBooking:", err);
+    next(new ErrorResponse(`Error deleting booking: ${err.message}`, 500));
   }
 };

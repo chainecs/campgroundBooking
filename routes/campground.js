@@ -6,7 +6,7 @@ const router = express.Router({ mergeParams: true });
 router
   .route("/")
   .get(protect, authorize("admin", "user"), getCampgrounds)
-  .post(protect, authorize("admin", "user"), addCampground);
+  .post(protect, authorize("admin"), addCampground);
 
 router.route("/:id").put(updateCampground).delete(deleteCampground);
 

@@ -3,9 +3,6 @@ const User = require("../models/User");
 const sendTokenResponse = (user, statusCode, res) => {
   // Create token
   const token = user.getSignedJwtToken();
-
-  console.log(user);
-
   const options = {
     expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000),
     httpOnly: true,
@@ -19,6 +16,7 @@ const sendTokenResponse = (user, statusCode, res) => {
     success: true,
     token,
     userId: user.id,
+    email: user.email,
   });
 };
 
@@ -27,8 +25,6 @@ exports.register = async (req, res, next) => {
   try {
     const { name, email, password, role } = req.body;
     const isEmailExist = await User.find({ email: email });
-
-    console.log(isEmailExist);
 
     if (isEmailExist.length > 0) {
       return res.status(400).json({ success: false, msg: "Email already in use" });
@@ -47,7 +43,7 @@ exports.register = async (req, res, next) => {
     sendTokenResponse(user, 200, res);
   } catch (err) {
     res.status(400).json({ success: false });
-    console.log(err.stack);
+    console.error(err.stack);
   }
 };
 

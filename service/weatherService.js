@@ -42,8 +42,6 @@ async function getWeatherOnBookingDateByZipcode(zipCode, startDate, endDate) {
       forecast: forecastData,
     };
 
-    console.log("Weather forecast result:", result);
-
     return result;
   } catch (error) {
     console.error("Failed to retrieve weather forecast data:", error);

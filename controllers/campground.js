@@ -1,5 +1,4 @@
 const Campground = require("../models/Campground");
-const ErrorResponse = require("../utils/errorResponse");
 
 // Get all campgrounds
 exports.getCampgrounds = async (req, res, next) => {
@@ -7,7 +6,7 @@ exports.getCampgrounds = async (req, res, next) => {
     const campgrounds = await Campground.find();
     res.status(200).json({ success: true, data: campgrounds });
   } catch (err) {
-    next(err);
+    res.status(500).json({ success: false, message: "Failed to retrieve campgrounds", error: err.message });
   }
 };
 
@@ -17,7 +16,7 @@ exports.addCampground = async (req, res, next) => {
     const campground = await Campground.create(req.body);
     res.status(201).json({ success: true, data: campground });
   } catch (err) {
-    next(err);
+    res.status(400).json({ success: false, message: "Failed to create campground", error: err.message });
   }
 };
 
@@ -30,12 +29,12 @@ exports.updateCampground = async (req, res, next) => {
     });
 
     if (!campground) {
-      return next(new ErrorResponse("Campground not found", 404));
+      return res.status(404).json({ success: false, message: "Campground not found" });
     }
 
     res.status(200).json({ success: true, data: campground });
   } catch (err) {
-    next(err);
+    res.status(500).json({ success: false, message: "Failed to update campground", error: err.message });
   }
 };
 
@@ -45,11 +44,11 @@ exports.deleteCampground = async (req, res, next) => {
     const campground = await Campground.findByIdAndDelete(req.params.id);
 
     if (!campground) {
-      return next(new ErrorResponse("Campground not found", 404));
+      return res.status(404).json({ success: false, message: "Campground not found" });
     }
 
     res.status(200).json({ success: true, data: {} });
   } catch (err) {
-    next(err);
+    res.status(500).json({ success: false, message: "Failed to delete campground", error: err.message });
   }
 };

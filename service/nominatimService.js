@@ -1,7 +1,6 @@
 const axios = require("axios");
 
 async function getLatLong(zipCode, countryCode) {
-  // Construct URL with country restriction
   const url = `https://nominatim.openstreetmap.org/search?format=json&postalcode=${zipCode}&countrycodes=${countryCode}`;
 
   try {
@@ -14,11 +13,14 @@ async function getLatLong(zipCode, countryCode) {
         longitude: location.lon,
       };
     } else {
-      return { error: "No results found." };
+      return { success: false, error: "No results found for the provided zip code." };
     }
   } catch (error) {
     console.error("Geocoding error:", error);
-    return { error: "Failed to retrieve coordinates." };
+    return {
+      success: false,
+      error: "Failed to retrieve coordinates. Please check your network connection and try again.",
+    };
   }
 }
 

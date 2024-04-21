@@ -1,9 +1,10 @@
 const User = require("../models/User");
-const ErrorResponse = require("../utils/errorResponse");
 // Get token from model, create cookie and send response
 const sendTokenResponse = (user, statusCode, res) => {
   // Create token
   const token = user.getSignedJwtToken();
+
+  console.log(user);
 
   const options = {
     expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000),
@@ -17,6 +18,7 @@ const sendTokenResponse = (user, statusCode, res) => {
   res.status(statusCode).cookie("token", token, options).json({
     success: true,
     token,
+    userId: user.id,
   });
 };
 
@@ -29,7 +31,7 @@ exports.register = async (req, res, next) => {
     console.log(isEmailExist);
 
     if (isEmailExist.length > 0) {
-      return next(new ErrorResponse("Duplicate Email", 400));
+      return res.status(400).json({ success: false, msg: "Email already in use" });
     }
 
     // Create user

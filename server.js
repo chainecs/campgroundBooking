@@ -12,12 +12,14 @@ const swaggerJsDoc = require("swagger-jsdoc");
 const swaggerUI = require("swagger-ui-express");
 const campgroundRoutes = require("./routes/campground");
 const bookingRoutes = require("./routes/booking");
+const weatherRoutes = require("./routes/weather");
 
 dotenv.config({ path: "./config/config.env" });
 
 connectDB();
 
 const auth = require("./routes/auth");
+const { startWeatherCronJob } = require("./cronjobs/weatherCronjob");
 
 const app = express();
 
@@ -76,6 +78,10 @@ app.use("/api/v1/auth", auth);
 app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDocs));
 app.use("/api/v1/campgrounds", campgroundRoutes);
 app.use("/api/v1/bookings", bookingRoutes);
+app.use("/api/weather", weatherRoutes);
+
+// Start the cron job
+startWeatherCronJob();
 
 const PORT = process.env.PORT || 3000;
 

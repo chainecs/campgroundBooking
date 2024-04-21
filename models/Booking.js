@@ -1,14 +1,13 @@
-// models/Booking.js
 const mongoose = require("mongoose");
 
 const BookingSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.ObjectId,
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
   },
-  campgroundId: {
-    type: mongoose.Schema.ObjectId,
+  campground: {
+    type: mongoose.Schema.Types.ObjectId,
     ref: "Campground",
     required: true,
   },

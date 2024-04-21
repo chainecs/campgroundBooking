@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const ErrorResponse = require("../utils/errorResponse");
 
 //Protect routes
 exports.protect = async (req, res, next) => {
@@ -41,4 +42,13 @@ exports.authorize = (...roles) => {
     }
     next();
   };
+};
+
+// middleware/admin.js
+exports.isAdmin = (req, res, next) => {
+  if (req.user.role === "admin") {
+    next();
+  } else {
+    return next(new ErrorResponse("Not authorized as admin", 401));
+  }
 };

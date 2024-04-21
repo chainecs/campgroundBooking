@@ -12,14 +12,4 @@ router.get("/:zipCode", async (req, res) => {
   }
 });
 
-router.get("/forecast/:zipCode", async (req, res) => {
-  try {
-    console.log(req.params.zipCode);
-    const weatherData = await getFiveDayForecastByZipCode(req.params.zipCode);
-    res.json(weatherData);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
 module.exports = router;

@@ -16,7 +16,7 @@ async function getWeatherOnBookingDateByZipcode(zipCode, startDate, endDate) {
   const countryCode = process.env.COUNTRY_CODE;
   const geo = await getLatLong(zipCode, countryCode);
   const apiKey = process.env.WEATHER_API_KEY;
-  const url = `http://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${geo.latitude},${geo.longitude}&days=10&aqi=no&alerts=no`; // Request more days if needed
+  const url = `http://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${geo.latitude},${geo.longitude}&days=10&aqi=no&alerts=no`;
 
   try {
     const response = await axios.get(url);

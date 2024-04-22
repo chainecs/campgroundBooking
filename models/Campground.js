@@ -1,4 +1,3 @@
-// models/Campground.js
 const mongoose = require("mongoose");
 
 const CampgroundSchema = new mongoose.Schema({

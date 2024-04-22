@@ -1,7 +1,7 @@
 const Booking = require("../models/Booking");
 const Campground = require("../models/Campground");
 const User = require("../models/User");
-const moment = require("moment"); // Use Moment.js for date handling
+const moment = require("moment");
 
 // Get all bookings for a user or admin
 exports.getBookings = async (req, res, next) => {

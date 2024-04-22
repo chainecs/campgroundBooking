@@ -1,4 +1,3 @@
-// In your routes file (e.g., weatherRoutes.js)
 const express = require("express");
 const router = express.Router();
 const { getWeatherByZipCode, getFiveDayForecastByZipCode } = require("../service/weatherService");

@@ -43,7 +43,7 @@ const swaggerDocs = swaggerJsDoc(swaggerOptions);
 
 const corsOptions = {
   origin: "*", // This will allow any domain to access your API
-  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+  optionsSuccessStatus: 200,
 };
 
 app.use(cors(corsOptions));

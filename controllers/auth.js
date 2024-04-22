@@ -70,11 +70,6 @@ exports.login = async (req, res, next) => {
     if (!isMatch) {
       return res.status(401).json({ success: false, msg: "Wrong Password" });
     }
-
-    // Create token
-    // const token = user.getSignedJwtToken();
-    // res.status(200).json({ success: true, token });
-
     sendTokenResponse(user, 200, res);
   } catch (err) {
     return res.status(401).json({ success: false, msg: "Cannot convert email or password to string" });

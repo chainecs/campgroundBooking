@@ -19,7 +19,7 @@ function startWeatherCronJob() {
     "05 22 * * *",
     async () => {
       console.log("Running daily check for bookings with upcoming dates...");
-      const targetDate = moment().add(5, "days").startOf("day").toDate(); // Ensure time component is stripped
+      const targetDate = moment().add(5, "days").startOf("day").toDate();
       const bookings = await Booking.find({
         startDate: { $eq: targetDate },
       })
@@ -27,7 +27,6 @@ function startWeatherCronJob() {
         .populate("campground");
 
       for (const booking of bookings) {
-        // Changed to for-loop for better error handling and flow control
         try {
           const forecast = await getWeatherOnBookingDateByZipcode(
             booking.campground.zipcode,
